@@ -5,7 +5,7 @@
 
 This project presents a complete SQL-based analysis of startup investment data from **Shark Tank India**. Business scenarios were framed around funding trends, investor behavior, pitch success rates, and industry growth patterns — all solved with structured SQL queries using a cleaned dataset.
 
-![Shark Tank]([https://cdn-icons-png.flaticon.com/512/833/833314.png](https://www.jumpstartmag.com/wp-content/uploads/2024/11/Shark-Tank-India.png))
+![Shark Tank](https://cdn-icons-png.flaticon.com/512/1055/1055687.png)
 
 ---
 
