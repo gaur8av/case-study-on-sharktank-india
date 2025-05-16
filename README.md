@@ -131,6 +131,44 @@ GROUP BY t.season_number, t.industry;
 ### 🧠 Task 6: Create a system for sharks to calculate ROI time.
 
 ```sql
+DELIMITER //
+CREATE PROCEDURE turn_around_time(IN startup VARCHAR(100))
+BEGIN
+    DECLARE offer_status VARCHAR(10);
+    DECLARE revenue_info VARCHAR(50);
+
+    -- Get the status and revenue
+    SELECT Accepted_Offer, Yearly_Revenue_in_lakhs
+    INTO offer_status, revenue_info
+    FROM sharktank
+    WHERE Startup_Name = startup
+    LIMIT 1;
+
+    -- Logic to handle different cases
+    IF offer_status = 'No' THEN
+        SELECT 'Turnaround time cannot be calculated as startup didn’t accept the offer' AS message;
+
+    ELSEIF revenue_info = 'Not Mentioned' and offer_status = 'Yes'  THEN
+        SELECT 'Turnaround time cannot be calculated as past data not available' AS message;
+
+    ELSE
+        SELECT 
+            Startup_Name,
+            Yearly_Revenue_in_lakhs,
+            Total_Deal_Amount_in_lakhs,
+            Total_Deal_Equity,
+            ROUND(
+                Total_Deal_Amount_in_lakhs / (Yearly_Revenue_in_lakhs * (Total_Deal_Equity / 100.0)),
+                2
+            ) AS ROI_Time_in_Years
+        FROM sharktank
+        WHERE Startup_Name = startup;
+    END IF;
+
+END;
+//
+DELIMITER ;
+
 CALL turn_around_time('BoozScooters');
 ```
 
@@ -162,6 +200,41 @@ select sharkname , avg(investment) as 'average' from
 ### 🧠 Task 8: Stored procedure to get shark's industry-wise investment by season.
 
 ```sql
+DELIMITER //
+create PROCEDURE getseasoninvestment(IN season INT, IN sharkname VARCHAR(100))
+BEGIN
+    CASE 
+        WHEN sharkname = 'namita' THEN
+            set @total = (select  sum(`Namita_Investment_Amount_in_lakhs`) from sharktank where Season_Number= season );
+            SELECT Industry, sum(`Namita_Investment_Amount_in_lakhs`) as 'sum' ,(sum(`Namita_Investment_Amount_in_lakhs`)/@total)*100 as 'Percent_namita' FROM sharktank WHERE season_Number = season AND `Namita_Investment_Amount_in lakhs_` > 0
+            group by industry;
+        WHEN sharkname = 'Vineeta' THEN
+            set @total = (select  sum(`Vineeta_Investment_Amount_in_lakhs`) from sharktank where Season_Number= season );
+            SELECT industry,sum(`Vineeta_Investment_Amount_in_lakhs`) as 'sum' , (sum(`Vineeta_Investment_Amount_in_lakhs`)/@total)*100 as 'Percent_vineeta' FROM sharktank WHERE season_Number = season AND `Vineeta_Investment_Amount_in_lakhs` > 0
+            group by industry;
+        WHEN sharkname = 'Anupam' THEN
+            set @total = (select  sum(`Anupam_Investment_Amount_in_lakhs`) from sharktank where Season_Number= season );
+            SELECT industry , sum(`Anupam_Investment_Amount_in_lakhs`) as 'sum' , (sum(`Anupam_Investment_Amount_in_lakhs`)/@total)*100 as 'Percent_anupam'  FROM sharktank WHERE season_Number = season AND `Anupam_Investment_Amount_in_lakhs` > 0
+            group by Industry;
+        WHEN sharkname = 'Aman' THEN
+            SELECT industry,sum(`Aman_Investment_Amount_in_lakhs`) as 'sum'  FROM sharktank WHERE season_Number = season AND `Aman_Investment_Amount_in_lakhs` > 0
+             group by Industry;
+        WHEN sharkname = 'Peyush' THEN
+             SELECT industry,sum(`Peyush_Investment_Amount_in_lakhs`) as 'sum'  FROM sharktank WHERE season_Number = season AND `Peyush_Investment_Amount_in_lakhs` > 0
+             group by Industry;
+        WHEN sharkname = 'Amit' THEN
+              SELECT industry,sum(`Amit_Investment_Amount_in_lakhs`) as 'sum'   WHERE season_Number = season AND `Amit_Investment_Amount_in_lakhs` > 0
+             group by Industry;
+        WHEN sharkname = 'Ashneer' THEN
+            SELECT industry,sum(`Ashneer_Investment_Amount`)  FROM sharktank WHERE season_Number = season AND `Ashneer_Investment_Amount` > 0
+             group by Industry;
+        ELSE
+            SELECT 'Invalid shark name';
+    END CASE;
+END //
+DELIMITER ;
+
+
 CALL getseasoninvestment(2, 'Anupam');
 ```
 
